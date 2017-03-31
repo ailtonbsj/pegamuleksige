@@ -1,8 +1,10 @@
 <?php
 
 header("Content-type: text/html; charset=utf-8");
+$ano = $_POST['ano'];
 
 function post($url, $data){
+	//echo '<hr>';
 	global $cokie, $ch;
 	//Initialize
 	//Set UserAgent
@@ -15,9 +17,9 @@ function post($url, $data){
 	curl_setopt($ch, CURLOPT_POST, 1);
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 	//Debug with proxy
-	curl_setopt($ch, CURLOPT_PROXY, "http://20.20.0.1:8080");
-	curl_setopt($ch, CURLOPT_PROXYPORT, 8080);
-	curl_setopt ($ch, CURLOPT_PROXYUSERPWD, "aluno:aluno");
+	//curl_setopt($ch, CURLOPT_PROXY, "http://20.20.0.1:8080");
+	//curl_setopt($ch, CURLOPT_PROXYPORT, 8080);
+	//curl_setopt ($ch, CURLOPT_PROXYUSERPWD, "aluno:aluno");
 	//END Debug with proxy
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_URL, $url);
@@ -26,6 +28,7 @@ function post($url, $data){
 }
 
 function get($url){
+	//echo '<hr>';
 	global $cokie, $ch;
 	//Initialize
 	//Set UserAgent
@@ -37,9 +40,9 @@ function get($url){
 	//Method
 	curl_setopt($ch, CURLOPT_POST, 0);
 	//Debug with proxy
-	curl_setopt($ch, CURLOPT_PROXY, "http://20.20.0.1:8080");
-	curl_setopt($ch, CURLOPT_PROXYPORT, 8080);
-	curl_setopt ($ch, CURLOPT_PROXYUSERPWD, "aluno:aluno");
+	//curl_setopt($ch, CURLOPT_PROXY, "http://20.20.0.1:8080");
+	//curl_setopt($ch, CURLOPT_PROXYPORT, 8080);
+	//curl_setopt ($ch, CURLOPT_PROXYUSERPWD, "aluno:aluno");
 	//END Debug with proxy
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($ch, CURLOPT_URL, $url);
@@ -48,19 +51,24 @@ function get($url){
 }
 
 function simpleGet($url){
+	//echo('<hr>');
 	$chr = curl_init();
 	curl_setopt($chr, CURLOPT_USERAGENT,"Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:50.0) Gecko/20100101 Firefox/50.0");
 	curl_setopt($chr, CURLOPT_RETURNTRANSFER, 1);
 	curl_setopt($chr, CURLOPT_URL, $url);
 	//Debug with proxy
-	curl_setopt($chr, CURLOPT_PROXY, "http://20.20.0.1:8080");
-	curl_setopt($chr, CURLOPT_PROXYPORT, 8080);
-	curl_setopt ($chr, CURLOPT_PROXYUSERPWD, "aluno:aluno");
+	///curl_setopt($chr, CURLOPT_PROXY, "http://20.20.0.1:8080");
+	//curl_setopt($chr, CURLOPT_PROXYPORT, 8080);
+	//curl_setopt ($chr, CURLOPT_PROXYUSERPWD, "aluno:aluno");
 	//END Debug with proxy
 	$html = curl_exec($chr);
 	curl_close($chr);
 	return $html;
 }
+
+//function rm($str){
+//	return str_replace('script', '', $str);
+//}
 
 ///////////////////////////////////////
 
@@ -68,7 +76,8 @@ function simpleGet($url){
 $sch_est = [];
 $est = fopen("estaduais.csv", "r") or die("Unable to open file!");
 while(!feof($est)) {
-  $tk = explode(',',fgets($est));
+	$linn = fgets($est);
+  $tk = explode(',',$linn);
   $cidade = $tk[0];
   $inep = $tk[1];
   $escola = str_replace("\n", '', $tk[2]);
@@ -96,12 +105,14 @@ $cokie = tempnam ("/tmp", "CURLCOOKIE");
 
 //Authetication
 //Home
-post("http://sige.seduc.ce.gov.br/login.asp",
+$p1 =  post("http://sige.seduc.ce.gov.br/login.asp",
 	 "nrAcesso=1&professor=N");
+//echo rm($p1);
 usleep(500);
 //Login
-post("http://sige.seduc.ce.gov.br/login.asp",
+$p2 = post("http://sige.seduc.ce.gov.br/login.asp",
 	"professor=N&site=&nr_Codigo=1&nm_Login=".$_POST['login']."&nm_Senha=".$_POST['pass']."&x=48&y=14");
+//echo rm($p2);
 usleep(500);
 
 
@@ -122,10 +133,13 @@ for($iEscMu = 0; $iEscMu < count($sch_mu); $iEscMu++){
 
 //Get Unidade de Trabalho
 $codUni = "";
-$utr = simpleGet("http://sige.seduc.ce.gov.br/Consulta/EscolaOfertaAno/PesquisaItem.asp?codigo=".$inep."&campo=Origem&nr_anoletivo=2016");
+
+$utr = simpleGet("http://sige.seduc.ce.gov.br/Consulta/EscolaOfertaAno/PesquisaItem.asp?codigo=".$inep."&campo=Origem&nr_anoletivo=$ano");
+
 $utr = str_replace(';', '\n', $utr);
 $utr = str_replace('{', '\n', $utr);
 $utr = str_replace(' ', '', $utr);
+//echo rm($utr);
 $utr = explode('\n', $utr);
 foreach ($utr as $u) {
 	$tk = explode('=', $u);
@@ -134,7 +148,8 @@ foreach ($utr as $u) {
 	}
 }
 //Get Oferta
-$ofraw = get("http://sige.seduc.ce.gov.br/Academico/Relatorios/Aluno/pesquisaOfertaItens.asp?cd_Escola=" .$inep. "&ci_OfertaItem=&nr_anoletivo=2016");
+$ofraw = get("http://sige.seduc.ce.gov.br/Academico/Relatorios/Aluno/pesquisaOfertaItens.asp?cd_Escola=" .$inep. "&ci_OfertaItem=&nr_anoletivo=$ano");
+//echo rm($ofraw);
 $ofert = [];
 $jscmd = explode(';', $ofraw);
 $jsl = count($jscmd);
@@ -151,13 +166,18 @@ foreach ($jscmd as $key => $js) {
 	elseif('9anoEnsinoFundamentalRegularTarde' == $lb) $ofert[1] = $vl;
 }
 
+$ano = $_POST['ano'];
 //Get 9 ano Manha e Tarde
 foreach ($ofert as $ofe) {
 	//Relatorios
+	//echo '<hr>RELATORIOS';
 	$html = post("http://sige.seduc.ce.gov.br/Academico/Relatorios/Aluno/Alunos.asp",
 	"num_escOrigem=$inep&
 cd_Unidade_Trabalho_Origem=$codUni&
+nr_AnoLetivo=$ano&
 ci_ofertaitem=$ofe&");
+	
+	//echo rm($html).'END REL <hr>';
 	usleep(500);
 	$doc = new DOMDocument();
 	@$doc->loadHTML($html);

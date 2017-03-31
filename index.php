@@ -67,9 +67,11 @@ body {
         <h2 class="form-signin-heading">Pega Mulek do SIGE</h2>
         <h6 class="form-signin-heading">A crawler for Sige</h6>
         <label for="inputEmail" class="sr-only">Email address</label>
-        <input type="input" id="inputEmail" name="login" class="form-control" placeholder="Login" required autofocus>
+        <input type="input" id="inputEmail" name="login" class="form-control" placeholder="Login" value="" required autofocus>
         <label for="inputPassword" class="sr-only">Password</label>
-        <input type="password" id="inputPassword" name="pass" class="form-control" placeholder="Senha" required>
+        <input type="password" id="inputPassword" name="pass" class="form-control" placeholder="Senha" required value=''>
+        <label for="inano" class="sr-only">Ano</label>
+        <input type="text" id="inano" name="ano" class="form-control" placeholder="ano" required value='2016'>
         <div class="checkbox">
           <select name="cidade" class="form-control">
 <?php
