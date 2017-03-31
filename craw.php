@@ -3,7 +3,7 @@
 <!-- Bootstrap Core CSS -->
 <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
 <!-- jQuery -->
-<script src="../vendor/jquery/jquery.min.js"></script>
+<script src="jquery/jquery.min.js"></script>
 <!-- Bootstrap Core JavaScript -->
 <script src="bootstrap/js/bootstrap.min.js"></script>
 <style>
@@ -28,16 +28,16 @@ function getEscolas($m, $re){
 	$html = post('http://www.fnde.gov.br/pddeinfo/index.php/pddeinfo/escola/consultarinep', "uf=CE&municipio=$m&redeensino=$re&pesquisar=Pesquisar");
 	$doc = new DOMDocument();
 	$doc->loadHTML($html);
-	$listagem = getElementsByClass('listagem', $doc)[0];
+	$listagem = getElementsByClass('listagem', $doc)->item(0);
 	$trs = $listagem->getElementsByTagName('tr');
 
 	$array = [];
 	foreach ($trs as $i => $tr) {
 	$tds = $tr->getElementsByTagName('td');
-		$td0 = $tds[0];
+		$td0 = $tds->item(0);
 		if(!is_null($td0)){
 			$inep = $td0->textContent;
-			$nome = getInnerHtml($tds[1]);
+			$nome = getInnerHtml($tds->item(1));
 			array_push($array, array('nome' => $nome, 'inep' => $inep));
 	    }
 	}
